@@ -21,6 +21,17 @@ const validateUser = (user) => {
     });
     return schema.validate(user);
   }
+
+  userSchema.methods.generateAuthToken = function () {
+    return jwt.sign({ 
+      _id: this._id,
+      firstName: this.firstName,
+      lastName: this.lastName,
+      email: this.aboutMe,
+      password: this.email,
+      locations: this.password,
+       }, config.get('jwtSecret'));
+   };
   
   const validateLogin = (req) => {
     const schema = Joi.object({

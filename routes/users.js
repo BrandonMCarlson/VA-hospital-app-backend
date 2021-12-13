@@ -1,24 +1,91 @@
-const Product = require('../models/user');
-const express = require('express');
+const Product = require("../models/user");
+const express = require("express");
 const router = express.Router();
 
-router.post('/', async (req, res) => {
+router.post(
+  "/register",
+
+  async (req, res) => {
     try {
-   
-    const user = new User({
-    firstName: 'Brandon',
-    lastName: 'Carlson',
-    email: 'brandoncarlson93bc@gmai..com',
-    location: 'Spokane, WA',
-    });
-
-    await user.save();
-
-    return res.send(user);
-
+      const { error } = validateUser(req.body);
+      if (error) return res.status(400).send(error.details[0].message);
+      let user = await User.findOne({ email: req.body.email });
+      if (user) return res.status(400).send("User already registered.");
+      const salt = await bcrypt.genSalt(10);
+      user = new User({
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        email: req.body.email,
+        password: await bcrypt.hash(req.body.password, salt),
+      });
+      await user.save();
+      const token = user.generateAuthToken();
+      return res
+        .header("x-auth-token", token)
+        .header("access-control-expose-headers", "x-auth-token")
+        .send({
+          _id: user._id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+        });
     } catch (ex) {
-    return res.status(500).send(`Internal Server Error: ${ex}`);
+      return res.status(500).send(`Internal Server Error: ${ex}`);
     }
-   });
+  }
+);
 
-module.exports = router;
+
+router.post("/login",  async (req, res) => {
+    try {
+      const { error } = validateLogin(req.body);
+      if (error) return res.status(400).send(error.details[0].message);
+  
+      let user = await User.findOne({ email: req.body.email });
+      if (!user) return res.status(400).send(`Invalid email or password.`);
+  
+      const validPassword = await bcrypt.compare(
+        req.body.password,
+        user.password
+      );
+      if (!validPassword)
+        return res.status(400).send("Invalid email or password.");
+  
+      const token = user.generateAuthToken();
+      return res.send(token);
+    } catch (ex) {
+      return res.status(500).send(`Internal Server Error: ${ex}`);
+    }
+  });
+
+  router.get("/",  async (req, res) => {
+    try {
+      const users = await User.find();
+      return res.send(users);
+    } catch (ex) {
+      return res.status(500).send(`Internal Server Error: ${ex}`);
+    }
+  });
+
+  router.put('/:userId', auth, async (req, res) => {
+    try {
+      const { error } = validateUser(req.body)
+      if (error) return res.status(400).send(error)
+  
+      const user = await User.findById(req.params.userId)
+      if (!user) return res.status(400).send(
+        `The user with id: "${req.params.userId}" does not exist.`
+        )
+  
+      user.firstName = req.body.firstName;
+      user.lastName = req.body.lastName;
+      user.aboutMe = req.body.aboutMe;
+      user.email = req.body.email;
+      user.password = req.body.password;
+  
+      await user.save()
+      return res.send(user)
+    } catch (ex) {
+      return res.status(500).send(`Internal Server Error: ${ex}`)
+  }
+})

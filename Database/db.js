@@ -1,11 +1,12 @@
 const mongoose = require('mongoose');
-const config = require('config')
+const config = require('config');
+const db = config.get('mongoURI');
 
 
 
 function connectDB() {
     mongoose
-    .connect(config.get('mongoURI'),
+    .connect(config.get("mongoURI"),
     { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => console.log('Connected to MongoDB...'))
     .catch((err) => {
