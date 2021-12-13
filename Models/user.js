@@ -3,6 +3,23 @@ const Joi = require('joi');
 const config = require('config');
 const jwt = require('jsonwebtoken');
 
+
+const profileSchema = new mongoose.Schema({
+  firstName: { type: String, required: true, minlength: 2, maxlength: 50 },
+  lastName: { type: String, required: true, minlength: 2, maxlength: 50 },
+  location: { type: String, required: true},
+})
+
+const Profile = mongoose.model('Profile', profileSchema)
+
+const validateProfile = (profile) => {
+  const schema = Joi.object({
+    firstName: Joi.string().min(2).max(50).required(),
+    lastName: Joi.string().min(2).max(50).required(),
+    location: Joi.string().required(),
+  })
+}
+
 const userSchema = new mongoose.Schema({
   firstName: { type: String, required: true, minlength: 2, maxlength: 50 },
   lastName: { type: String, required: true, minlength: 2, maxlength: 50 },
@@ -47,5 +64,7 @@ const validateLogin = (req) => {
 };
 
 exports.User = User;
+exports.Profile = Profile;
 exports.validateUser = validateUser;
 exports.validateLogin = validateLogin;
+exports.validateProfile = validateProfile;

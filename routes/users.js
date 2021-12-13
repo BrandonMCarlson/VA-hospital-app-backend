@@ -6,15 +6,7 @@ const auth = require('../middleware/auth');
 const bcrypt = require('bcrypt');
 
 
-router.get("/",  async (req, res) => {
-    try {
-      const users = await users.find();
-      return res.send(users);
-    } catch (ex) {
-      return res.status(500).send(`Internal Server Error: ${ex}`);
-    }
-  });
-  
+
 router.post("/register", async (req, res) => {
     try {
       const { error } = validateUser(req.body);
@@ -68,7 +60,14 @@ router.post("/login",  async (req, res) => {
     }
   });
 
-
+  router.get("/",  async (req, res) => {
+    try {
+      const users = await users.find();
+      return res.send(users);
+    } catch (ex) {
+      return res.status(500).send(`Internal Server Error: ${ex}`);
+    }
+  });
 
   router.put('/:userId', auth, async (req, res) => {
     try {
