@@ -1,11 +1,21 @@
-const Product = require("../models/user");
+const {User, validateUser, validateLogin } = require("../models/user");
 const express = require("express");
 const router = express.Router();
+const admin = require('../middleware/admin');
+const auth = require('../middleware/auth');
+const bcrypt = require('bcrypt');
 
-router.post(
-  "/register",
 
-  async (req, res) => {
+router.get("/",  async (req, res) => {
+    try {
+      const users = await users.find();
+      return res.send(users);
+    } catch (ex) {
+      return res.status(500).send(`Internal Server Error: ${ex}`);
+    }
+  });
+  
+router.post("/register", async (req, res) => {
     try {
       const { error } = validateUser(req.body);
       if (error) return res.status(400).send(error.details[0].message);
@@ -58,14 +68,7 @@ router.post("/login",  async (req, res) => {
     }
   });
 
-  router.get("/",  async (req, res) => {
-    try {
-      const users = await User.find();
-      return res.send(users);
-    } catch (ex) {
-      return res.status(500).send(`Internal Server Error: ${ex}`);
-    }
-  });
+
 
   router.put('/:userId', auth, async (req, res) => {
     try {
@@ -79,7 +82,7 @@ router.post("/login",  async (req, res) => {
   
       user.firstName = req.body.firstName;
       user.lastName = req.body.lastName;
-      user.aboutMe = req.body.aboutMe;
+      user.location = req.body.location;
       user.email = req.body.email;
       user.password = req.body.password;
   
@@ -88,4 +91,20 @@ router.post("/login",  async (req, res) => {
     } catch (ex) {
       return res.status(500).send(`Internal Server Error: ${ex}`)
   }
-})
+});
+
+router.delete("/:userId", auth, async (req, res) => {
+    try {
+      const user = await User.findById(req.params.userId);
+      if (!user)
+        return res
+          .status(400)
+          .send(`User with id ${req.params.userId} does not exist!`);
+      await user.remove();
+      return res.send(user);
+    } catch (ex) {
+      return res.status(500).send(`Internal Server Error: ${ex}`);
+    }
+  });
+
+  module.exports = router

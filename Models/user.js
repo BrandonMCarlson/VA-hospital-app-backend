@@ -1,47 +1,51 @@
-const mongoose = require('mongoose');
-
+const mongoose = require("mongoose");
+const Joi = require('joi');
+const config = require('config');
+const jwt = require('jsonwebtoken');
 
 const userSchema = new mongoose.Schema({
- firstName: { type: String, required: true, minlength: 2, maxlength: 50 },
- lastName: { type: String, required: true, minlength: 2, maxlength: 50 },
- email: { type: String, required: true },
- password : { type: String, required: true, minlength: 2, maxlength: 1024 },
- location: { type: String, required: true },
+  firstName: { type: String, required: true, minlength: 2, maxlength: 50 },
+  lastName: { type: String, required: true, minlength: 2, maxlength: 50 },
+  email: { type: String, required: true },
+  password: { type: String, required: true, minlength: 2, maxlength: 1024 },
 });
 
-const User = mongoose.model('User', userSchema);
-
-const validateUser = (user) => {
-    const schema = Joi.object({
-      firstName: Joi.string().min(2).max(50).required(),
-      lastName: Joi.string().min(2).max(50).required(),
-      email: Joi.string().min(5).max(255).required().email(),
-      password: Joi.string().min(5).max(1024).required(),
-      locations: Joi.string().required(),
-    });
-    return schema.validate(user);
-  }
-
-  userSchema.methods.generateAuthToken = function () {
-    return jwt.sign({ 
+userSchema.methods.generateAuthToken = function () {
+  return jwt.sign(
+    {
       _id: this._id,
       firstName: this.firstName,
       lastName: this.lastName,
       email: this.aboutMe,
       password: this.email,
       locations: this.password,
-       }, config.get('jwtSecret'));
-   };
-  
-  const validateLogin = (req) => {
-    const schema = Joi.object({
-      email: Joi.string().min(5).max(255).required().email(),
-      password: Joi.string().min(5).max(1024).required(),
-    });
-    return schema.validate(req);
-  };
+    },
+    config.get("jwtSecret")
+  );
+};
+
+const User = mongoose.model("User", userSchema);
+
+const validateUser = (user) => {
+  const schema = Joi.object({
+    firstName: Joi.string().min(2).max(50).required(),
+    lastName: Joi.string().min(2).max(50).required(),
+    email: Joi.string().min(5).max(255).required().email(),
+    password: Joi.string().min(5).max(1024).required(),
+  });
+  return schema.validate(user);
+};
 
 
-module.exports = User;
-module.exports = validateUser;
-module.exports = validateLogin;
+
+const validateLogin = (req) => {
+  const schema = Joi.object({
+    email: Joi.string().min(5).max(255).required().email(),
+    password: Joi.string().min(5).max(1024).required(),
+  });
+  return schema.validate(req);
+};
+
+exports.User = User;
+exports.validateUser = validateUser;
+exports.validateLogin = validateLogin;
