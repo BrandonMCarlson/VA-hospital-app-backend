@@ -1,24 +1,24 @@
 const mongoose = require("mongoose");
-const Joi = require('joi');
-const config = require('config');
-const jwt = require('jsonwebtoken');
-
+const Joi = require("joi");
+const config = require("config");
+const jwt = require("jsonwebtoken");
 
 const profileSchema = new mongoose.Schema({
   firstName: { type: String, required: true, minlength: 2, maxlength: 50 },
   lastName: { type: String, required: true, minlength: 2, maxlength: 50 },
-  location: { type: String, required: true},
-})
+  location: { type: String, required: true },
+});
 
-const Profile = mongoose.model('Profile', profileSchema)
+const Profile = mongoose.model("Profile", profileSchema);
 
 const validateProfile = (profile) => {
   const schema = Joi.object({
     firstName: Joi.string().min(2).max(50).required(),
     lastName: Joi.string().min(2).max(50).required(),
     location: Joi.string().required(),
-  })
-}
+  });
+  return schema.validate(profile);
+};
 
 const userSchema = new mongoose.Schema({
   firstName: { type: String, required: true, minlength: 2, maxlength: 50 },
@@ -33,9 +33,8 @@ userSchema.methods.generateAuthToken = function () {
       _id: this._id,
       firstName: this.firstName,
       lastName: this.lastName,
-      email: this.aboutMe,
-      password: this.email,
-      locations: this.password,
+      email: this.email,
+      password: this.password,
     },
     config.get("jwtSecret")
   );
@@ -52,8 +51,6 @@ const validateUser = (user) => {
   });
   return schema.validate(user);
 };
-
-
 
 const validateLogin = (req) => {
   const schema = Joi.object({
