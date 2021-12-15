@@ -23,8 +23,9 @@ const validateProfile = (profile) => {
 const userSchema = new mongoose.Schema({
   firstName: { type: String, required: true, minlength: 2, maxlength: 50 },
   lastName: { type: String, required: true, minlength: 2, maxlength: 50 },
-  email: { type: String, required: true },
+  email: { type: String, required: true, minlength: 5,  maxlength: 255},
   password: { type: String, required: true, minlength: 2, maxlength: 1024 },
+  isAdmin: { type: Boolean, default: false },
 });
 
 userSchema.methods.generateAuthToken = function () {

@@ -1,13 +1,13 @@
 const {User, validateUser, validateLogin } = require("../models/user");
-const express = require("express");
-const router = express.Router();
 const admin = require('../middleware/admin');
 const auth = require('../middleware/auth');
+const express = require("express");
+const router = express.Router();
 const bcrypt = require('bcrypt');
 
 
 
-router.post("/register", async (req, res) => {
+router.post("/register", [auth, admin],  async (req, res) => {
     try {
       const { error } = validateUser(req.body);
       if (error) return res.status(400).send(error.details[0].message);
@@ -38,7 +38,7 @@ router.post("/register", async (req, res) => {
 );
 
 
-router.post("/login",  async (req, res) => {
+router.post("/login", [auth, admin],  async (req, res) => {
     try {
       const { error } = validateLogin(req.body);
       if (error) return res.status(400).send(error.details[0].message);
