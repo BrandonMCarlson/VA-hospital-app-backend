@@ -23,9 +23,9 @@ const validateProfile = (profile) => {
 const userSchema = new mongoose.Schema({
   firstName: { type: String, required: true, minlength: 2, maxlength: 50 },
   lastName: { type: String, required: true, minlength: 2, maxlength: 50 },
+  location: { type: String, required: false, minlength: 2, maxlength: 1024 },
   email: { type: String, required: true, minlength: 5,  maxlength: 255},
   password: { type: String, required: true, minlength: 2, maxlength: 1024 },
-  isAdmin: { type: Boolean, default: false },
 });
 
 userSchema.methods.generateAuthToken = function () {
@@ -35,7 +35,6 @@ userSchema.methods.generateAuthToken = function () {
       firstName: this.firstName,
       lastName: this.lastName,
       email: this.email,
-      password: this.password,
     },
     config.get("jwtSecret")
   );
@@ -47,6 +46,7 @@ const validateUser = (user) => {
   const schema = Joi.object({
     firstName: Joi.string().min(2).max(50).required(),
     lastName: Joi.string().min(2).max(50).required(),
+    location: Joi.string().min(2).max(1024),
     email: Joi.string().min(5).max(255).required().email(),
     password: Joi.string().min(5).max(1024).required(),
   });

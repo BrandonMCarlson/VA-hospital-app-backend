@@ -7,8 +7,8 @@ const bcrypt = require('bcrypt');
 
 
 
-router.post("/register", [auth, admin],  async (req, res) => {
-    try {
+router.post("/register",  async (req, res) => {
+  try {
       const { error } = validateUser(req.body);
       if (error) return res.status(400).send(error.details[0].message);
       let user = await User.findOne({ email: req.body.email });
@@ -38,7 +38,7 @@ router.post("/register", [auth, admin],  async (req, res) => {
 );
 
 
-router.post("/login", [auth, admin],  async (req, res) => {
+router.post("/login",  async (req, res) => {
     try {
       const { error } = validateLogin(req.body);
       if (error) return res.status(400).send(error.details[0].message);
@@ -68,6 +68,21 @@ router.post("/login", [auth, admin],  async (req, res) => {
       return res.status(500).send(`Internal Server Error: ${ex}`);
     }
   });
+
+  router.get("/:userId", auth, async (req, res) => {
+    try {
+      const user = await User.findById(req.params.userId);
+      if (!user)
+        return res
+          .status(400)
+          .send(`User with id ${req.params.userId} does not exist!`);
+      return res.send(user);
+    } catch (ex) {
+      return res.status(500).send(`Internal Server Error: ${ex}`);
+    }
+  });
+
+  
 
   router.put('/:userId', auth, async (req, res) => {
     try {
