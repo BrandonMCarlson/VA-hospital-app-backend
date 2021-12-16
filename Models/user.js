@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const Joi = require("joi");
 const config = require("config");
 const jwt = require("jsonwebtoken");
+Joi.objectId = require("joi-objectid")(Joi);
 
 const profileSchema = new mongoose.Schema({
   firstName: { type: String, required: true, minlength: 2, maxlength: 50 },
@@ -23,7 +24,6 @@ const validateProfile = (profile) => {
 const userSchema = new mongoose.Schema({
   firstName: { type: String, required: true, minlength: 2, maxlength: 50 },
   lastName: { type: String, required: true, minlength: 2, maxlength: 50 },
-  location: { type: String, required: false, minlength: 2, maxlength: 1024 },
   email: { type: String, required: true, minlength: 5,  maxlength: 255},
   password: { type: String, required: true, minlength: 2, maxlength: 1024 },
 });
@@ -46,7 +46,6 @@ const validateUser = (user) => {
   const schema = Joi.object({
     firstName: Joi.string().min(2).max(50).required(),
     lastName: Joi.string().min(2).max(50).required(),
-    location: Joi.string().min(2).max(1024),
     email: Joi.string().min(5).max(255).required().email(),
     password: Joi.string().min(5).max(1024).required(),
   });
