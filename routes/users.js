@@ -7,6 +7,7 @@ const bcrypt = require('bcrypt');
 
 
 
+
 router.post("/register",  async (req, res) => {
   try {
       const { error } = validateUser(req.body);
@@ -86,25 +87,32 @@ router.post("/login",  async (req, res) => {
 
   router.put('/:userId', auth, async (req, res) => {
     try {
-      const { error } = validateUser(req.body)
-      if (error) return res.status(400).send(error)
-  
       const user = await User.findById(req.params.userId)
       if (!user) return res.status(400).send(
         `The user with id: "${req.params.userId}" does not exist.`
         )
-  
-      user.firstName = req.body.firstName;
-      user.lastName = req.body.lastName;
-      user.location = req.body.location;
-      user.email = req.body.email;
-      user.password = req.body.password;
+      user.appointment=req.body.appointment,
   
       await user.save()
       return res.send(user)
     } catch (ex) {
       return res.status(500).send(`Internal Server Error: ${ex}`)
   }
+});
+
+router.post('/:userId', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.params.userId)
+    if (!user) return res.status(400).send(
+      `The user with id: "${req.params.userId}" does not exist.`
+      )
+    user.favFacility=req.body.favFacility,
+    user.appointment=req.body.appointment,
+    await user.save()
+    return res.send(user)
+  } catch (ex) {
+    return res.status(500).send(`Internal Server Error: ${ex}`)
+}
 });
 
 router.delete("/:userId", auth, async (req, res) => {

@@ -2,12 +2,14 @@ const mongoose = require("mongoose");
 const Joi = require("joi");
 const config = require("config");
 const jwt = require("jsonwebtoken");
-Joi.objectId = require("joi-objectid")(Joi);
+const { string } = require("joi");
+
 
 const profileSchema = new mongoose.Schema({
   firstName: { type: String, required: true, minlength: 2, maxlength: 50 },
   lastName: { type: String, required: true, minlength: 2, maxlength: 50 },
-  location: { type: String, required: true },
+  appointment: {type: Object, required: false},
+  favFacility: {type: String, required: false},
 });
 
 const Profile = mongoose.model("Profile", profileSchema);
@@ -16,7 +18,8 @@ const validateProfile = (profile) => {
   const schema = Joi.object({
     firstName: Joi.string().min(2).max(50).required(),
     lastName: Joi.string().min(2).max(50).required(),
-    location: Joi.string().required(),
+    appointment: Joi.object(),
+    favFacility: Joi.string(),
   });
   return schema.validate(profile);
 };
@@ -26,6 +29,9 @@ const userSchema = new mongoose.Schema({
   lastName: { type: String, required: true, minlength: 2, maxlength: 50 },
   email: { type: String, required: true, minlength: 5,  maxlength: 255},
   password: { type: String, required: true, minlength: 2, maxlength: 1024 },
+  isAdmin: { type: Boolean, default: false },
+  appointment: {type: Object, requried: false},
+  favFacility: {type: String, required: false},
 });
 
 userSchema.methods.generateAuthToken = function () {
@@ -35,6 +41,7 @@ userSchema.methods.generateAuthToken = function () {
       firstName: this.firstName,
       lastName: this.lastName,
       email: this.email,
+      appointment: this.appointment,
     },
     config.get("jwtSecret")
   );
@@ -48,6 +55,8 @@ const validateUser = (user) => {
     lastName: Joi.string().min(2).max(50).required(),
     email: Joi.string().min(5).max(255).required().email(),
     password: Joi.string().min(5).max(1024).required(),
+    appointment: Joi.object(),
+    favFacility: Joi.string(),
   });
   return schema.validate(user);
 };
