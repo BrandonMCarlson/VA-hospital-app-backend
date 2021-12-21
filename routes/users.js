@@ -107,7 +107,7 @@ router.post('/:userId', auth, async (req, res) => {
       `The user with id: "${req.params.userId}" does not exist.`
       )
     user.favFacility=req.body.favFacility,
-    user.appointment=req.body.appointment,
+
     await user.save()
     return res.send(user)
   } catch (ex) {
